@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual: Cómo publicar tus artefactos web gratis</title>
+<style>
+  :root {
+    --navy: #1a2744;
+    --teal: #0e7c7b;
+    --gold: #e6a817;
+    --light: #f5f7fa;
+    --white: #ffffff;
+    --text: #2d3748;
+    --muted: #718096;
+    --border: #e2e8f0;
+    --success: #38a169;
+    --warning: #d69e2e;
+    --danger: #e53e3e;
+    --code-bg: #1e2a3a;
+    --code-text: #a8d8a8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--light);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, var(--navy) 0%, #2d4a8a 100%);
+    color: white;
+    padding: 2.5rem 2rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(14,124,123,0.3) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-tag {
+    display: inline-block;
+    background: var(--teal);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 0.3rem 0.8rem;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+    font-weight: 800;
+    line-height: 1.2;
+    max-width: 700px;
+    margin-bottom: 0.8rem;
+  }
+  header h1 span { color: var(--gold); }
+  header p {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.75);
+    max-width: 600px;
+  }
+  .header-meta {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .meta-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.6);
+  }
+  .meta-badge strong { color: white; }
+
+  /* NAV */
+  nav {
+    background: var(--white);
+    border-bottom: 3px solid var(--teal);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .nav-inner {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .nav-inner::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    padding: 0.9rem 1.2rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { color: var(--teal); }
+  .nav-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+  /* MAIN LAYOUT */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS INTRO */
+  .intro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0 2rem;
+  }
+  .intro-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.4rem;
+    border: 1px solid var(--border);
+    border-left: 4px solid;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .intro-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+  .intro-card.netlify { border-left-color: #00ad9f; }
+  .intro-card.github { border-left-color: #333; }
+  .intro-card.vercel { border-left-color: #000; }
+  .intro-card.cloudflare { border-left-color: #f38020; }
+  .intro-card .card-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .intro-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .intro-card p { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .badge-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+  }
+  .badge.green { background: #c6f6d5; color: #276749; }
+  .badge.blue { background: #bee3f8; color: #2b6cb0; }
+  .badge.gray { background: #edf2f7; color: #4a5568; }
+  .badge.gold { background: #fef3c7; color: #92400e; }
+
+  /* STEP LAYOUT */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  .icon-teal { background: #e6fffa; }
+  .icon-navy { background: #ebf4ff; }
+  .icon-gold { background: #fffbeb; }
+
+  .section-header h2 { font-size: 1.4rem; font-weight: 800; color: var(--navy); }
+  .section-header p { font-size: 0.85rem; color: var(--muted); margin-top: 0.2rem; }
+
+  /* STEPS */
+  .steps { display: flex; flex-direction: column; gap: 1.2rem; margin: 1.5rem 0; }
+  .step {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .step-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.2rem 1.4rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .step-header:hover { background: #f7fafc; }
+  .step-num {
+    min-width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .step-num.teal { background: var(--teal); }
+  .step-num.gold { background: var(--gold); }
+  .step-title { font-weight: 700; font-size: 0.95rem; color: var(--navy); }
+  .step-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+  .step-arrow { margin-left: auto; color: var(--muted); font-size: 1.1rem; transition: transform 0.2s; }
+  .step.open .step-arrow { transform: rotate(180deg); }
+  .step-body {
+    display: none;
+    padding: 0 1.4rem 1.4rem 4rem;
+    border-top: 1px solid var(--border);
+  }
+  .step.open .step-body { display: block; }
+  .step-body p { font-size: 0.88rem; color: var(--text); margin: 0.8rem 0; }
+  .step-body ul, .step-body ol { padding-left: 1.2rem; font-size: 0.88rem; }
+  .step-body li { margin: 0.4rem 0; }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.82rem;
+    margin: 0.8rem 0;
+    overflow-x: auto;
+    position: relative;
+  }
+  .code-label {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.8rem;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .code-block .comment { color: #6a8f6a; }
+  .code-block .highlight { color: #ffd700; }
+
+  /* CALLOUTS */
+  .callout {
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    margin: 0.8rem 0;
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    font-size: 0.85rem;
+  }
+  .callout.tip { background: #e6fffa; border-left: 3px solid var(--teal); }
+  .callout.warning { background: #fffbeb; border-left: 3px solid var(--warning); }
+  .callout.info { background: #ebf8ff; border-left: 3px solid #4299e1; }
+  .callout.success { background: #f0fff4; border-left: 3px solid var(--success); }
+  .callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.05rem; }
+  .callout strong { display: block; margin-bottom: 0.2rem; }
+
+  /* COMPARISON TABLE */
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.83rem;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .comparison-table th {
+    background: var(--navy);
+    color: white;
+    padding: 0.8rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
+  }
+  .comparison-table th:first-child { border-radius: 0; }
+  .comparison-table td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .comparison-table tr:last-child td { border-bottom: none; }
+  .comparison-table tr:nth-child(even) td { background: #f9fbfd; }
+  .check { color: var(--success); font-weight: 700; }
+  .cross { color: var(--danger); }
+  .semi { color: var(--warning); }
+
+  /* FLOW DIAGRAM */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1.2rem 0;
+    font-size: 0.82rem;
+  }
+  .flow-item {
+    background: var(--navy);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .flow-item.teal { background: var(--teal); }
+  .flow-item.gold { background: var(--gold); color: var(--navy); }
+  .flow-item.green { background: var(--success); }
+  .flow-arrow { color: var(--muted); font-size: 1.2rem; }
+
+  /* SCENARIO CARDS */
+  .scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin: 1.2rem 0;
+  }
+  .scenario-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+  }
+  .scenario-card h4 { font-size: 0.9rem; font-weight: 700; color: var(--navy); margin-bottom: 0.4rem; }
+  .scenario-card .emoji { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
+  .scenario-card p { font-size: 0.8rem; color: var(--muted); }
+  .scenario-card .rec {
+    margin-top: 0.7rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--teal);
+  }
+
+  /* PROMPT BLOCK */
+  .prompt-block {
+    background: #fafafa;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--text);
+    margin: 0.8rem 0;
+    position: relative;
+  }
+  .prompt-block::before {
+    content: '💬 PROMPT SUGERIDO';
+    display: block;
+    font-style: normal;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--teal);
+    margin-bottom: 0.5rem;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.78rem;
+  }
+  footer strong { color: white; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    header { padding: 1.5rem 1rem; }
+    main { padding: 1rem 1rem 3rem; }
+    .step-body { padding-left: 1rem; }
+    .flow { justify-content: center; }
+  }
+
+  /* ANIMATIONS */
+  .section.active { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* HIGHLIGHT TEXT */
+  .hl { background: #fefcbf; padding: 0 3px; border-radius: 3px; font-weight: 600; }
+
+  /* LINK STYLE */
+  a { color: var(--teal); text-decoration: none; font-weight: 600; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">Manual Práctico · UBP Cátedra IA</div>
+  <h1>Cómo publicar tus <span>artefactos web</span> gratis y compartirlos con un link</h1>
+  <p>De tu pantalla de Claude o ChatGPT → a una URL pública que tus docentes pueden abrir desde cualquier dispositivo. Sin programar, sin pagar.</p>
+  <div class="header-meta">
+    <div class="meta-badge">⏱️ <strong>Nivel:</strong> Sin código complejo</div>
+    <div class="meta-badge">💰 <strong>Costo:</strong> $0 en todos los métodos</div>
+    <div class="meta-badge">🎯 <strong>Resultado:</strong> URL pública compartible</div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="showSection('intro', this)">🗺️ Panorama</button>
+    <button class="nav-btn" onclick="showSection('netlify', this)">⚡ Netlify Drop</button>
+    <button class="nav-btn" onclick="showSection('github', this)">🐙 GitHub Pages</button>
+    <button class="nav-btn" onclick="showSection('vercel', this)">▲ Vercel</button>
+    <button class="nav-btn" onclick="showSection('dominio', this)">🌐 Dominio propio</button>
+    <button class="nav-btn" onclick="showSection('flujo', this)">🔄 Flujo completo</button>
+    <button class="nav-btn" onclick="showSection('faq', this)">❓ FAQ</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- SECCIÓN: PANORAMA -->
+  <section id="intro" class="section active">
+    <div class="section-header">
+      <div class="section-icon icon-teal">🗺️</div>
+      <div>
+        <h2>Primero: el panorama completo</h2>
+        <p>Entendé qué opciones existen antes de elegir el camino</p>
+      </div>
+    </div>
+
+    <p>Cuando Claude o ChatGPT generan un artefacto (una app web, un HTML interactivo, un formulario), ese archivo existe solo en tu pantalla. Para que otros lo usen, necesitás <strong>alojarlo en un servidor</strong> y obtener una URL. Hay cuatro opciones gratuitas, cada una para un perfil distinto:</p>
+
+    <div class="intro-grid">
+      <div class="intro-card netlify">
+        <div class="card-icon">⚡</div>
+        <h3>Netlify Drop</h3>
+        <p>Arrastrás el archivo y en 30 segundos tenés una URL. Cero configuración.</p>
+        <div class="badge-row">
+          <span class="badge green">MÁS FÁCIL</span>
+          <span class="badge blue">Instante</span>
+        </div>
+      </div>
+      <div class="intro-card github">
+        <div class="card-icon">🐙</div>
+        <h3>GitHub Pages</h3>
+        <p>URL estable y profesional. Requiere crear una cuenta y un repositorio.</p>
+        <div class="badge-row">
+          <span class="badge gray">Medio</span>
+          <span class="badge green">URL permanente</span>
+        </div>
+      </div>
+      <div class="intro-card vercel">
+        <div class="card-icon">▲</div>
+        <h3>Vercel</h3>
+        <p>Para proyectos más complejos. Se conecta a GitHub y despliega automático.</p>
+        <div class="badge-row">
+          <span class="badge gray">Avanzado</span>
+          <span class="badge blue">Auto-deploy</span>
+        </div>
+      </div>
+      <div class="intro-card cloudflare">
+        <div class="card-icon">🔥</div>
+        <h3>Cloudflare Pages</h3>
+        <p>La alternativa más rápida del mundo. Misma lógica que GitHub Pages.</p>
+        <div class="badge-row">
+          <span class="badge gold">Muy rápido</span>
+          <span class="badge gray">Requiere cuenta</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin: 1.5rem 0 1rem; font-size: 1rem;">Comparación rápida</h3>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Plataforma</th>
+          <th>Facilidad</th>
+          <th>URL gratis</th>
+          <th>Dominio propio</th>
+          <th>Permanencia</th>
+          <th>Recomendado para</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Netlify Drop</strong></td>
+          <td>⭐⭐⭐⭐⭐</td>
+          <td class="check">✔ Sí</td>
+          <td class="check">✔ Gratis</td>
+          <td><span class="semi">⚠</span> Sin cuenta: 24hs</td>
+          <td>Pruebas rápidas, demos</td>
+        </tr>
+        <tr>
+          <td><strong>GitHub Pages</strong></td>
+          <td>⭐⭐⭐</td>
+          <td class="check">✔ Sí</td>
+          <td class="check">✔ Gratis</td>
+          <td class="check">✔ Permanente</td>
+          <td>Proyectos estables, clases</td>
+        </tr>
+        <tr>
+          <td><strong>Vercel</strong></td>
+          <td>⭐⭐⭐</td>
+          <td class="check">✔ Sí</td>
+          <td class="check">✔ Gratis</td>
+          <td class="check">✔ Permanente</td>
+          <td>Varios proyectos, updates frecuentes</td>
+        </tr>
+        <tr>
+          <td><strong>Cloudflare Pages</strong></td>
+          <td>⭐⭐⭐</td>
+          <td class="check">✔ Sí</td>
+          <td class="check">✔ Gratis</td>
+          <td class="check">✔ Permanente</td>
+          <td>Velocidad máxima</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div><strong>Recomendación para empezar</strong> Comenzá con <span class="hl">Netlify Drop</span> para tus primeras pruebas. Cuando quieras URLs permanentes y profesionales, pasá a <span class="hl">GitHub Pages</span>. Invertís 20 minutos una sola vez y te dura para siempre.</div>
+    </div>
+
+    <div class="scenario-grid">
+      <div class="scenario-card">
+        <span class="emoji">🧪</span>
+        <h4>Probás un agente nuevo</h4>
+        <p>Querés que un colega lo pruebe antes de comprometerte a un URL fijo.</p>
+        <div class="rec">→ Netlify Drop (30 segundos)</div>
+      </div>
+      <div class="scenario-card">
+        <span class="emoji">📚</span>
+        <h4>Material de cátedra</h4>
+        <p>Un simulador o guía que los alumnos van a usar todo el cuatrimestre.</p>
+        <div class="rec">→ GitHub Pages</div>
+      </div>
+      <div class="scenario-card">
+        <span class="emoji">🏛️</span>
+        <h4>Portal institucional</h4>
+        <p>Varios agentes organizados bajo un dominio UBP o similar.</p>
+        <div class="rec">→ GitHub Pages + dominio propio</div>
+      </div>
+      <div class="scenario-card">
+        <span class="emoji">🔄</span>
+        <h4>Agente que se actualiza seguido</h4>
+        <p>Mejorás el HTML cada semana y necesitás que el link siempre funcione.</p>
+        <div class="rec">→ Vercel o Cloudflare Pages</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN: NETLIFY DROP -->
+  <section id="netlify" class="section">
+    <div class="section-header">
+      <div class="section-icon icon-teal">⚡</div>
+      <div>
+        <h2>Método 1: Netlify Drop</h2>
+        <p>El más rápido del planeta. Arrastrás, soltás, compartís.</p>
+      </div>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-icon">✅</span>
+      <div><strong>Tiempo total estimado: 3 minutos la primera vez, 30 segundos después.</strong><br>No necesitás instalar nada ni crear cuenta para empezar.</div>
+    </div>
+
+    <h3 style="margin: 1rem 0 0.8rem; font-size: 0.95rem;">Paso a paso</h3>
+    <div class="steps">
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num teal">1</div>
+          <div>
+            <div class="step-title">Obtener el archivo HTML de Claude o ChatGPT</div>
+            <div class="step-sub">El artefacto que generó la IA necesita guardarse como archivo</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p><strong>En Claude:</strong></p>
+          <ol>
+            <li>Cuando Claude genera un artefacto (la ventana de preview a la derecha), buscá el ícono de descarga o los <code>...</code> arriba a la derecha del artefacto.</li>
+            <li>Hacé clic en <strong>"Download"</strong> o <strong>"Descargar"</strong>.</li>
+            <li>Se guarda un archivo <code>.html</code> en tu carpeta Descargas.</li>
+          </ol>
+          <p style="margin-top: 0.8rem;"><strong>En ChatGPT:</strong></p>
+          <ol>
+            <li>ChatGPT muestra el código en el panel derecho.</li>
+            <li>Copiá todo el código (Ctrl+A → Ctrl+C dentro del panel).</li>
+            <li>Abrí el <strong>Bloc de Notas</strong> (Windows) o <strong>TextEdit</strong> (Mac).</li>
+            <li>Pegá el código y guardá como: <code>mi-agente.html</code><br><span style="font-size:0.8rem; color:var(--muted);">⚠️ Importante: asegurate que la extensión sea <strong>.html</strong> y no .txt</span></li>
+          </ol>
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div>Podés pedirle a Claude directamente: <em>"Descargame esto como archivo HTML listo para publicar"</em> y lo generará como artefacto descargable.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num teal">2</div>
+          <div>
+            <div class="step-title">Ir a Netlify Drop</div>
+            <div class="step-sub">La plataforma que hace toda la magia</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>Abrí en tu navegador: <a href="https://app.netlify.com/drop" target="_blank">app.netlify.com/drop</a></p>
+          <p>Vas a ver una gran zona punteada que dice <em>"Drag and drop your site folder here"</em>.</p>
+          <div class="callout info">
+            <span class="callout-icon">ℹ️</span>
+            <div><strong>¿Un solo archivo o una carpeta?</strong> Si tu agente es un único <code>.html</code> (lo más común), podés arrastrarlo directamente. Si tiene imágenes, CSS separado u otros archivos adicionales, ponelos todos en una carpeta y arrastrá la carpeta.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num teal">3</div>
+          <div>
+            <div class="step-title">Arrastrar y soltar el archivo</div>
+            <div class="step-sub">Drag & drop → magia</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <ol>
+            <li>Localizá tu archivo <code>mi-agente.html</code> en el Explorador de archivos (Windows) o Finder (Mac).</li>
+            <li>Arrastralo encima de la zona punteada de Netlify.</li>
+            <li>Soltalo.</li>
+            <li>Esperá unos 10-20 segundos mientras sube.</li>
+          </ol>
+          <p>Netlify te va a mostrar una barra de progreso y luego... 🎉</p>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num teal">4</div>
+          <div>
+            <div class="step-title">Copiar y compartir tu URL</div>
+            <div class="step-sub">El link que vas a mandar a tus docentes</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>Netlify te genera automáticamente una URL del tipo:</p>
+          <div class="code-block">
+            https://<span class="highlight">nombre-random-123456</span>.netlify.app
+          </div>
+          <p>Hacé clic en <strong>"Copy link"</strong> y mandásela a quien quieras. Listo. Funciona en celular, tablet y computadora.</p>
+          <div class="callout warning">
+            <span class="callout-icon">⚠️</span>
+            <div><strong>Duración sin cuenta:</strong> Los deploys sin cuenta duran <strong>solo 24 horas</strong>. Para tenerlo permanente, creá una cuenta gratuita en Netlify (con tu email) y reclamá el sitio. Con cuenta: <strong>permanente y gratis.</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num gold">+</div>
+          <div>
+            <div class="step-title">Opcional: personalizar la URL</div>
+            <div class="step-sub">Cambiar "nombre-random-123456" por algo más memorable</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>Con cuenta gratuita en Netlify podés renombrar el subdominio:</p>
+          <ol>
+            <li>Ingresá a tu dashboard en netlify.com</li>
+            <li>Hacé clic en tu sitio → <strong>Site settings</strong></li>
+            <li>En <strong>"Site information"</strong> → <strong>"Change site name"</strong></li>
+            <li>Escribí, por ejemplo: <code>gemelo-ubp</code></li>
+          </ol>
+          <p>Tu URL queda: <code>https://gemelo-ubp.netlify.app</code> — mucho más presentable para compartir con colegas.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECCIÓN: GITHUB PAGES -->
+  <section id="github" class="section">
+    <div class="section-header">
+      <div class="section-icon icon-navy">🐙</div>
+      <div>
+        <h2>Método 2: GitHub Pages</h2>
+        <p>La opción profesional y permanente. Inversión inicial de 20 minutos, beneficio eterno.</p>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ️</span>
+      <div><strong>¿Qué es GitHub?</strong> Es como Google Drive pero para código. GitHub Pages es su funcionalidad gratuita para publicar páginas web. Lo usan universidades de todo el mundo para publicar materiales educativos.</div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-item">Crear cuenta GitHub</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-item teal">Crear repositorio</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-item gold">Subir HTML</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-item green">Activar Pages</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-item teal">¡URL lista!</div>
+    </div>
+
+    <div class="steps">
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">Crear tu cuenta en GitHub</div>
+            <div class="step-sub">Una sola vez. Gratis.</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <ol>
+            <li>Ir a <a href="https://github.com" target="_blank">github.com</a></li>
+            <li>Clic en <strong>Sign up</strong></li>
+            <li>Elegí un username (te sugiero algo como <code>waldo-ubp</code> o <code>catedra-ia-ubp</code>)</li>
+            <li>Completá el registro con tu email institucional</li>
+          </ol>
+          <div class="callout tip">
+            <span class="callout-icon">🎓</span>
+            <div>Con email <code>.edu</code> podés solicitar <strong>GitHub Education</strong> que da beneficios extra (aunque para este uso no los necesitás).</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">Crear un repositorio nuevo</div>
+            <div class="step-sub">El "contenedor" donde van tus archivos</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <ol>
+            <li>En tu dashboard, clic en el botón verde <strong>"New"</strong> (arriba a la izquierda)</li>
+            <li><strong>Repository name:</strong> ponele el nombre de tu proyecto, ej: <code>agentes-ia-ubp</code></li>
+            <li>Asegurate que esté en <strong>Public</strong> (necesario para GitHub Pages gratis)</li>
+            <li>Tildá <strong>"Add a README file"</strong></li>
+            <li>Clic en <strong>"Create repository"</strong></li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">Subir tu archivo HTML</div>
+            <div class="step-sub">Sin línea de comandos, todo desde el navegador</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <ol>
+            <li>Dentro de tu repositorio, clic en <strong>"Add file"</strong> → <strong>"Upload files"</strong></li>
+            <li>Arrastrá tu <code>mi-agente.html</code> al área de carga</li>
+            <li>Importante: si querés que sea la página principal, llamá al archivo <strong><code>index.html</code></strong></li>
+            <li>Abajo en "Commit changes" dejá el mensaje predeterminado o escribí algo como <em>"Subir agente IA"</em></li>
+            <li>Clic en <strong>"Commit changes"</strong></li>
+          </ol>
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div>Podés subir múltiples archivos HTML. Cada uno tendrá su propia URL dentro del mismo repositorio.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-title">Activar GitHub Pages</div>
+            <div class="step-sub">El paso que lo convierte en sitio web público</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <ol>
+            <li>En tu repositorio, ir a <strong>Settings</strong> (la rueda dentada en el menú superior)</li>
+            <li>En el menú lateral izquierdo, clic en <strong>Pages</strong></li>
+            <li>En "Source", seleccioná <strong>"Deploy from a branch"</strong></li>
+            <li>En "Branch", elegí <strong>main</strong> y la carpeta <strong>/ (root)</strong></li>
+            <li>Clic en <strong>Save</strong></li>
+            <li>Esperá 1-2 minutos (podés recargar la página)</li>
+          </ol>
+          <p>GitHub Pages te mostrará tu URL:</p>
+          <div class="code-block">
+            https://<span class="highlight">tu-usuario</span>.github.io/<span class="highlight">nombre-repo</span>/
+          </div>
+          <p>Ejemplo real: <code>https://waldo-ubp.github.io/agentes-ia-ubp/</code></p>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num gold">+</div>
+          <div>
+            <div class="step-title">Actualizar el agente con una nueva versión</div>
+            <div class="step-sub">Cuando mejorés el HTML, el link sigue igual</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <ol>
+            <li>Entrá al repositorio</li>
+            <li>Hacé clic en el archivo que querés reemplazar</li>
+            <li>Clic en el ícono del lápiz ✏️ (Edit)</li>
+            <li>Borrá todo y pegá el nuevo código HTML</li>
+            <li>Clic en <strong>"Commit changes"</strong></li>
+            <li>En 1-2 minutos el sitio se actualiza. <strong>El link NO cambia.</strong></li>
+          </ol>
+          <div class="callout success">
+            <span class="callout-icon">🎯</span>
+            <div>Esta es la gran ventaja de GitHub Pages: actualizás el contenido pero el link que mandaste a tus docentes sigue funcionando.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECCIÓN: VERCEL -->
+  <section id="vercel" class="section">
+    <div class="section-header">
+      <div class="section-icon icon-navy">▲</div>
+      <div>
+        <h2>Método 3: Vercel</h2>
+        <p>La opción para cuando tenés varios proyectos y querés actualizarlos seguido.</p>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ️</span>
+      <div><strong>¿Cuándo elegir Vercel sobre GitHub Pages?</strong> Cuando tenés 5+ agentes diferentes, los actualizás frecuentemente, o querés un dashboard centralizado para gestionar todo desde un solo lugar.</div>
+    </div>
+
+    <div class="steps">
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">Crear cuenta en Vercel</div>
+            <div class="step-sub">Lo más fácil: usás tu cuenta de GitHub</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <ol>
+            <li>Ir a <a href="https://vercel.com" target="_blank">vercel.com</a></li>
+            <li>Clic en <strong>"Sign Up"</strong></li>
+            <li>Elegí <strong>"Continue with GitHub"</strong> (esto conecta ambas cuentas automáticamente)</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">Importar tu repositorio de GitHub</div>
+            <div class="step-sub">Vercel lo detecta y lo publica solo</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <ol>
+            <li>En el dashboard de Vercel, clic en <strong>"Add New Project"</strong></li>
+            <li>Vercel muestra tus repositorios de GitHub</li>
+            <li>Elegí el repo con tus agentes</li>
+            <li>Clic en <strong>"Deploy"</strong></li>
+            <li>En 30 segundos tenés la URL</li>
+          </ol>
+          <p>Tu URL será algo como:</p>
+          <div class="code-block">
+            https://<span class="highlight">agentes-ia-ubp</span>.vercel.app
+          </div>
+          <div class="callout success">
+            <span class="callout-icon">🤖</span>
+            <div><strong>Auto-deploy:</strong> Cada vez que actualizás un archivo en GitHub, Vercel lo detecta y redespliega automáticamente en segundos. El link sigue igual.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div><strong>Flujo recomendado combinado:</strong> Usá GitHub para guardar tus archivos (como control de versiones) y Vercel para publicarlos. Cuando mejorés un agente en GitHub, Vercel lo actualiza solo. El link que le mandaste a tus docentes siempre funciona.</div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN: DOMINIO PROPIO -->
+  <section id="dominio" class="section">
+    <div class="section-header">
+      <div class="section-icon icon-gold">🌐</div>
+      <div>
+        <h2>Bonus: Dominio propio gratuito o de bajo costo</h2>
+        <p>Para cuando querés algo como <code>agentes-ia.ubp.edu.ar</code></p>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠️</span>
+      <div><strong>Esto requiere coordinación con el área de sistemas de UBP.</strong> Si UBP ya tiene su dominio <code>ubp.edu.ar</code>, pueden crear un subdominio gratis. Pero también podés conseguir tu propio dominio por muy poco.</div>
+    </div>
+
+    <h3 style="margin: 1rem 0 0.8rem; font-size: 0.95rem;">Opciones para dominio propio</h3>
+    <div class="steps">
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num gold">A</div>
+          <div>
+            <div class="step-title">Subdominio UBP (coordinación institucional)</div>
+            <div class="step-sub">algo.ubp.edu.ar — la opción más profesional</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>Si UBP tiene control sobre su DNS (muy probable), pueden crear un subdominio gratuito como:</p>
+          <div class="code-block">ia-catedra.ubp.edu.ar</div>
+          <p>Necesitás pedirlo al área de sistemas y darles los datos de tu plataforma (Netlify o Vercel). Ellos configuran el DNS y listo. El hosting sigue siendo gratis en Netlify/Vercel.</p>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num gold">B</div>
+          <div>
+            <div class="step-title">Dominio .com.ar por tu cuenta</div>
+            <div class="step-sub">Bajo costo, independencia total</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>En Argentina, un dominio <code>.com.ar</code> cuesta aproximadamente <strong>$2.000-$4.000 ARS por año</strong> (muy poco). Podés registrarlo en:</p>
+          <ul>
+            <li><a href="https://nic.ar" target="_blank">nic.ar</a> — el registro oficial argentino</li>
+            <li>NicAr, DonWeb, Cloudflare Registrar (para .com internacional)</li>
+          </ul>
+          <p>Después conectás el dominio a tu sitio en Netlify, Vercel o GitHub Pages desde la configuración de DNS.</p>
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div>Cloudflare ofrece dominios <strong>.com</strong> a precio de costo (~USD 10/año, sin markup). Para dominios <code>.ar</code> podés usar Cloudflare también si lo registraste antes en otro lado.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num gold">C</div>
+          <div>
+            <div class="step-title">Conectar dominio propio a Netlify (sin código)</div>
+            <div class="step-sub">El proceso de configuración</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <ol>
+            <li>En Netlify: <strong>Site settings</strong> → <strong>Domain management</strong> → <strong>Add a domain</strong></li>
+            <li>Escribí tu dominio (ej: <code>agentes-ia.com.ar</code>)</li>
+            <li>Netlify te da dos registros DNS que tenés que copiar</li>
+            <li>Entrás al panel donde registraste tu dominio (nic.ar, DonWeb, etc.)</li>
+            <li>Buscás la configuración DNS y cargás esos registros</li>
+            <li>Esperás entre 10 minutos y 24 horas (propagación DNS)</li>
+            <li>Netlify activa el HTTPS automáticamente, gratis</li>
+          </ol>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECCIÓN: FLUJO COMPLETO -->
+  <section id="flujo" class="section">
+    <div class="section-header">
+      <div class="section-icon icon-teal">🔄</div>
+      <div>
+        <h2>El flujo completo: de la IA a tus docentes</h2>
+        <p>El proceso de punta a punta para cualquier artefacto</p>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom: 1rem; font-size: 0.95rem;">Flujo recomendado para la Cátedra</h3>
+
+    <div class="steps">
+
+      <div class="step open" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num teal">1</div>
+          <div>
+            <div class="step-title">Generás el artefacto con Claude o ChatGPT</div>
+            <div class="step-sub">Con el prompt adecuado para obtener HTML listo para publicar</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>Cuando pedís un artefacto web, asegurate de incluir en tu prompt:</p>
+          <div class="prompt-block">
+            Crea esto como un archivo HTML completo, autocontenido (sin dependencias externas), con CSS incluido en el mismo archivo. Que funcione al abrirlo directamente en un navegador sin necesidad de servidor.
+          </div>
+          <p>Los artefactos "autocontenidos" son los más fáciles de publicar porque son un solo archivo.</p>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num teal">2</div>
+          <div>
+            <div class="step-title">Descargás el HTML</div>
+            <div class="step-sub">Guardar el artefacto como archivo local</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>En Claude: botón "Download" en el artefacto.<br>En ChatGPT: copiar el código y pegar en Bloc de Notas, guardar como <code>.html</code>.</p>
+          <div class="callout tip">
+            <span class="callout-icon">📁</span>
+            <div>Organizá tus artefactos en carpetas por tema: <code>Agentes/Simuladores/</code>, <code>Agentes/Guias/</code>, etc. Así cuando los subís a GitHub están ordenados.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num teal">3</div>
+          <div>
+            <div class="step-title">Probás localmente antes de publicar</div>
+            <div class="step-sub">Abrís el archivo en el navegador como control de calidad</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>Antes de compartir, hacé doble clic en el archivo <code>.html</code>. Se abre en tu navegador y podés verificar que funciona correctamente. Si algo no anda, volvé a Claude con el problema.</p>
+          <div class="prompt-block">
+            Este agente tiene un error: [describí el problema]. Aquí está el código actual: [pegá el HTML]. Corregilo manteniendo el resto igual.
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num teal">4</div>
+          <div>
+            <div class="step-title">Publicás con el método elegido</div>
+            <div class="step-sub">Netlify Drop para urgencias, GitHub Pages para todo lo demás</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>Regla simple:</p>
+          <ul>
+            <li>¿Necesitás el link <strong>en los próximos 5 minutos</strong>? → Netlify Drop</li>
+            <li>¿Va a durar más de un día o lo vas a actualizar? → GitHub Pages</li>
+            <li>¿Tenés muchos proyectos y querés automatización? → GitHub + Vercel</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num teal">5</div>
+          <div>
+            <div class="step-title">Compartís el link con tus docentes</div>
+            <div class="step-sub">El paso final (¡y el más fácil!)</div>
+          </div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>Copiás la URL y la mandás por WhatsApp, email, Campus Virtual o la clavás en una presentación de PowerPoint como código QR.</p>
+          <div class="callout tip">
+            <span class="callout-icon">📱</span>
+            <div>Para generar un QR del link, podés usar <a href="https://qr.io" target="_blank">qr.io</a> o simplemente pedirle a Claude: <em>"Generá un QR de esta URL: [tu link]"</em> y te da el código para incluirlo en tu slide.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <h3 style="margin: 2rem 0 1rem; font-size: 0.95rem;">Tabla de decisión rápida</h3>
+    <table class="comparison-table">
+      <thead>
+        <tr><th>Situación</th><th>Método recomendado</th><th>Tiempo</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Demo en clase en 5 minutos</td><td>⚡ Netlify Drop</td><td>30 seg</td></tr>
+        <tr><td>Material para todo el cuatrimestre</td><td>🐙 GitHub Pages</td><td>20 min setup + 2 min c/vez</td></tr>
+        <tr><td>Varios agentes, actualizaciones frecuentes</td><td>🐙 GitHub + ▲ Vercel</td><td>30 min setup + automático</td></tr>
+        <tr><td>Portal institucional con dominio UBP</td><td>GitHub Pages + DNS UBP</td><td>Coordinación IT + 1h</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- SECCIÓN: FAQ -->
+  <section id="faq" class="section">
+    <div class="section-header">
+      <div class="section-icon icon-gold">❓</div>
+      <div>
+        <h2>Preguntas frecuentes</h2>
+        <p>Las dudas que van a aparecer, respondidas antes de que aparezcan</p>
+      </div>
+    </div>
+
+    <div class="steps">
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num gold">?</div>
+          <div><div class="step-title">¿Es realmente gratis? ¿Hay letra chica?</div></div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p><strong>Netlify:</strong> Gratis hasta 100GB de ancho de banda/mes y 300 minutos de build. Para materiales educativos estáticos (HTML puro), es prácticamente imposible superar ese límite.</p>
+          <p><strong>GitHub Pages:</strong> Gratis sin límite de tiempo para repositorios públicos. Límite de 1GB por sitio y 100GB de ancho de banda/mes. Más que suficiente.</p>
+          <p><strong>Vercel:</strong> Plan gratuito (Hobby) incluye proyectos ilimitados con algunas restricciones. Para uso académico no comercial, el plan gratis alcanza.</p>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num gold">?</div>
+          <div><div class="step-title">¿Qué pasa si el artefacto usa IA por dentro (llama a la API de Claude)?</div></div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>Si tu artefacto hace llamadas a la API de Claude o ChatGPT, el HTML publicado necesita una API key. Hay dos opciones:</p>
+          <ul>
+            <li><strong>Incluir la key en el HTML (no recomendado):</strong> Cualquiera que vea el código fuente la puede robar.</li>
+            <li><strong>Pedir la key al usuario (recomendado para docentes):</strong> El artefacto le pide a cada usuario que ingrese su propia API key. Así cada docente usa su propia cuenta.</li>
+          </ul>
+          <div class="prompt-block">
+            Modificá este artefacto para que al abrirse le pida al usuario su API key de Anthropic antes de funcionar. Que la guarde en localStorage para no pedirla de nuevo.
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num gold">?</div>
+          <div><div class="step-title">¿Los docentes necesitan cuenta para usar el artefacto?</div></div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p><strong>No.</strong> Una vez publicado, cualquier persona con el link puede abrir el artefacto en su navegador. No necesitan crear ninguna cuenta. Es exactamente igual a abrir cualquier página web.</p>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num gold">?</div>
+          <div><div class="step-title">¿Cómo sé si el agente está funcionando después de publicarlo?</div></div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>Abrí el link en una pestaña de incógnito (Ctrl+Shift+N) y probalo como si fueras un docente. La pestaña incógnita simula un usuario nuevo sin caché previo.</p>
+          <p>También podés mandarle el link a alguien con un dispositivo distinto (celular vs computadora) para verificar que funciona cross-device.</p>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num gold">?</div>
+          <div><div class="step-title">¿Puedo poner contraseña para que solo accedan mis docentes?</div></div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>Netlify tiene una función de <strong>password protection</strong> en el plan gratuito (básica). También podés pedirle a Claude que genere un HTML con login simple por contraseña incorporado en el propio código (no es seguridad real, pero filtra accesos casuales).</p>
+          <div class="prompt-block">
+            Añadí una pantalla de login al artefacto. Contraseña: "ubp2025". Si es correcta, muestra el contenido. Que sea simple y se vea bien.
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleStep(this)">
+        <div class="step-header">
+          <div class="step-num gold">?</div>
+          <div><div class="step-title">¿Puedo publicar los artefactos que genera Claude directamente, sin descargar?</div></div>
+          <span class="step-arrow">▾</span>
+        </div>
+        <div class="step-body">
+          <p>Los artefactos de Claude tienen links temporales que no están pensados para compartir externamente (duran poco y requieren estar logueado en Claude). Por eso el flujo correcto es descargar el HTML y publicarlo vos en tu propia plataforma.</p>
+          <p>Netlify está trabajando en integraciones directas con IAs, pero por ahora el proceso manual de 2 pasos (descargar → subir) es lo estándar.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout success" style="margin-top: 2rem;">
+      <span class="callout-icon">🚀</span>
+      <div><strong>Resumen ejecutivo para el Director de Ingeniería:</strong><br>
+      Netlify Drop para hoy mismo. GitHub Pages para la infraestructura permanente de la cátedra. Dominio propio (o subdominio UBP) cuando quieras la imagen institucional. Todo costo $0. Tiempo total de setup: menos de una hora.</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <strong>Manual de Publicación de Artefactos Web</strong> · Cátedra Abierta de IA Aplicada · UBP Córdoba<br>
+  <span style="margin-top: 0.3rem; display: block;">Generado con Claude · Actualizable y reutilizable libremente</span>
+</footer>
+
+<script>
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function toggleStep(step) {
+    step.classList.toggle('open');
+  }
+
+  // Open first step of each section by default
+  document.querySelectorAll('.section').forEach(section => {
+    const first = section.querySelector('.step');
+    if (first) first.classList.add('open');
+  });
+</script>
+</body>
+</html>
