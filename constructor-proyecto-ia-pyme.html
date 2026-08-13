@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constructor de Proyecto de IA — PyME</title>
+<style>
+  :root{
+    --navy:#1B2A4A;
+    --navy-2:#233757;
+    --teal:#0D7377;
+    --teal-light:#5FAEA9;
+    --gold:#E8B84B;
+    --gold-dark:#C99A34;
+    --ice:#EBF4FA;
+    --gray:#4A5568;
+    --line:#DCE3EC;
+    --red:#C0392B;
+    --amber:#C9922B;
+    --green:#1E8A5F;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family: "Calibri","Segoe UI",Arial,sans-serif;
+    background:#F5F7FA;
+    color:#222;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Shell ---------- */
+  .app{
+    display:grid;
+    grid-template-columns: 300px 1fr;
+    min-height:100vh;
+  }
+  @media (max-width: 900px){
+    .app{grid-template-columns: 1fr;}
+    .rail{position:relative; width:100%;}
+  }
+
+  /* ---------- Left rail ---------- */
+  .rail{
+    background:var(--navy);
+    color:var(--white);
+    padding:28px 22px 22px;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  @media (max-width: 900px){ .rail{ height:auto; position:relative;} }
+
+  .brand-eyebrow{
+    color:var(--gold);
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .brand-title{
+    font-size:19px;
+    font-weight:700;
+    line-height:1.25;
+    margin-bottom:4px;
+  }
+  .brand-sub{
+    font-size:12px;
+    color:#AFC0D8;
+    margin-bottom:22px;
+  }
+
+  .gauge-wrap{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:10px;
+    padding:14px;
+    margin-bottom:24px;
+  }
+  .gauge{ width:64px; height:64px; flex:none; }
+  .gauge-label{ font-size:11px; color:#AFC0D8; text-transform:uppercase; letter-spacing:.6px; }
+  .gauge-value{ font-size:22px; font-weight:700; color:var(--gold); }
+
+  .steps{ list-style:none; margin:0; padding:0; }
+  .step{
+    display:flex;
+    gap:12px;
+    padding:11px 8px;
+    border-radius:8px;
+    cursor:pointer;
+    align-items:flex-start;
+    transition: background .15s ease;
+  }
+  .step:hover{ background:rgba(255,255,255,0.06); }
+  .step.active{ background:rgba(232,184,75,0.14); }
+  .step-num{
+    flex:none;
+    width:26px; height:26px;
+    border-radius:50%;
+    border:1.5px solid rgba(255,255,255,0.35);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700;
+    color:#C9D6E8;
+    margin-top:1px;
+  }
+  .step.active .step-num{ border-color:var(--gold); color:var(--gold); }
+  .step.done .step-num{ background:var(--teal); border-color:var(--teal); color:#fff; }
+  .step-text{ font-size:13.5px; line-height:1.35; padding-top:2px; }
+  .step-title{ font-weight:600; color:#fff; }
+  .step-sub{ color:#8FA3BF; font-size:11.5px; margin-top:1px; }
+
+  .rail-line{
+    width:1px;
+    background:rgba(255,255,255,0.14);
+    margin-left:21px;
+    height:10px;
+  }
+
+  .rail-footer{
+    margin-top:24px;
+    padding-top:16px;
+    border-top:1px solid rgba(255,255,255,0.12);
+    font-size:11px;
+    color:#7E93B0;
+    line-height:1.5;
+  }
+
+  /* ---------- Main ---------- */
+  .main{ padding:36px 44px 80px; max-width:920px; }
+  @media (max-width: 900px){ .main{ padding:24px 18px 60px; } }
+
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:26px;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .phase-eyebrow{
+    font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase;
+    color:var(--teal); margin-bottom:6px;
+  }
+  .phase-title{
+    font-size:28px; font-weight:700; color:var(--navy);
+    border-bottom:3px solid var(--gold);
+    padding-bottom:14px;
+    margin:0 0 4px;
+  }
+  .phase-desc{ color:var(--gray); font-size:14.5px; margin-top:12px; max-width:640px; }
+
+  .btns{ display:flex; gap:8px; flex:none; }
+  button{ font-family:inherit; cursor:pointer; }
+  .btn{
+    border:1.5px solid var(--navy);
+    background:#fff; color:var(--navy);
+    padding:9px 16px; border-radius:7px;
+    font-size:13px; font-weight:600;
+  }
+  .btn:hover{ background:var(--ice); }
+  .btn-primary{
+    background:var(--teal); border-color:var(--teal); color:#fff;
+  }
+  .btn-primary:hover{ background:#0a5f62; }
+  .btn-gold{
+    background:var(--gold); border-color:var(--gold); color:var(--navy);
+  }
+  .btn-gold:hover{ background:var(--gold-dark); }
+  .btn-ghost{ border-color:var(--line); color:var(--gray); }
+  .btn-ghost:hover{ background:#F0F2F5; }
+  .btn-sm{ padding:6px 10px; font-size:12px; border-radius:6px; }
+
+  .card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:22px 24px;
+    margin-bottom:18px;
+  }
+  .card-title{
+    font-size:15px; font-weight:700; color:var(--navy);
+    margin:0 0 4px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .card-title .n{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px;height:20px;border-radius:50%;
+    background:var(--teal); color:#fff; font-size:11px; font-weight:700;
+  }
+  .card-help{ font-size:12.5px; color:var(--gray); margin-bottom:14px; }
+
+  label{ display:block; font-size:12.5px; font-weight:600; color:var(--navy); margin-bottom:5px; margin-top:14px; }
+  label:first-of-type{ margin-top:0; }
+  input[type=text], input[type=date], textarea, select{
+    width:100%;
+    font-family:inherit;
+    font-size:13.5px;
+    padding:9px 11px;
+    border:1.5px solid var(--line);
+    border-radius:7px;
+    color:#222;
+    background:#fff;
+  }
+  input:focus, textarea:focus, select:focus{
+    outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(13,115,119,0.12);
+  }
+  textarea{ resize:vertical; min-height:64px; line-height:1.4; }
+  .hint{ font-size:11.5px; color:#8290A3; margin-top:4px; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+  @media (max-width:640px){ .row2,.row3{ grid-template-columns:1fr; } }
+
+  .sentence-preview{
+    background:var(--ice);
+    border-left:4px solid var(--teal);
+    border-radius:0 8px 8px 0;
+    padding:12px 16px;
+    font-size:13.5px;
+    color:var(--navy);
+    font-style:italic;
+    margin-top:14px;
+    line-height:1.5;
+  }
+  .sentence-preview b{ font-style:normal; }
+
+  /* Scorecard table (fase 2) */
+  .scoretable{ width:100%; border-collapse:collapse; margin-top:8px; font-size:13px; }
+  .scoretable th{
+    background:var(--navy); color:#fff; text-align:left;
+    padding:8px 10px; font-size:11.5px; text-transform:uppercase; letter-spacing:.3px;
+  }
+  .scoretable td{ padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  .scoretable input[type=text]{ padding:6px 8px; font-size:13px; }
+  .scoretable input[type=number]{
+    width:52px; padding:6px 6px; text-align:center; border:1.5px solid var(--line); border-radius:6px; font-size:13px;
+  }
+  .score-total{ font-weight:700; color:var(--teal); text-align:center; }
+  .row-del{ color:#B5BFCC; background:none; border:none; font-size:16px; cursor:pointer; }
+  .row-del:hover{ color:var(--red); }
+  .best-badge{
+    display:inline-block; background:var(--gold); color:var(--navy); font-size:10px; font-weight:700;
+    padding:2px 7px; border-radius:10px; margin-left:6px;
+  }
+
+  /* Fase 3 data health */
+  .dim-row{
+    display:grid; grid-template-columns: 190px 1fr 150px; gap:14px; align-items:start;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .dim-row:last-child{ border-bottom:none; }
+  .dim-name{ font-weight:700; color:var(--navy); font-size:13.5px; padding-top:8px; }
+  .dim-name .sub{ display:block; font-weight:400; color:var(--gray); font-size:11.5px; margin-top:2px; }
+  .status-select{ display:flex; gap:6px; }
+  .pill{
+    flex:1; text-align:center; padding:8px 4px; border-radius:7px; font-size:11.5px; font-weight:700;
+    border:1.5px solid var(--line); cursor:pointer; color:var(--gray); user-select:none;
+  }
+  .pill[data-v="verde"].active{ background:var(--green); border-color:var(--green); color:#fff; }
+  .pill[data-v="amarillo"].active{ background:var(--amber); border-color:var(--amber); color:#fff; }
+  .pill[data-v="rojo"].active{ background:var(--red); border-color:var(--red); color:#fff; }
+
+  /* Fase 5 lanes */
+  .lane{
+    border-radius:8px;
+    padding:14px 16px;
+    margin-bottom:12px;
+    border:1.5px solid var(--line);
+    border-left-width:6px;
+  }
+  .lane.green{ border-left-color:var(--green); }
+  .lane.amber{ border-left-color:var(--amber); }
+  .lane.red{ border-left-color:var(--red); }
+  .lane-title{ font-weight:700; font-size:13.5px; margin-bottom:6px; display:flex; align-items:center; gap:8px;}
+  .dot{ width:10px; height:10px; border-radius:50%; display:inline-block; }
+  .dot.green{ background:var(--green); }
+  .dot.amber{ background:var(--amber); }
+  .dot.red{ background:var(--red); }
+
+  /* Checklist fase 6/7 */
+  .check-item{
+    display:flex; gap:10px; align-items:flex-start;
+    padding:9px 0; border-bottom:1px solid var(--line);
+  }
+  .check-item:last-child{ border-bottom:none; }
+  .check-item input[type=checkbox]{ margin-top:3px; width:16px; height:16px; accent-color:var(--teal); flex:none; }
+  .check-item .ci-text{ font-size:13.5px; color:#222; line-height:1.4; }
+  .check-item .ci-text small{ display:block; color:var(--gray); font-size:11.5px; margin-top:2px; }
+
+  /* Roles table fase 7 */
+  .roletable{ width:100%; border-collapse:collapse; font-size:13px; }
+  .roletable th{
+    background:var(--navy); color:#fff; text-align:left; padding:8px 10px; font-size:11.5px;
+    text-transform:uppercase; letter-spacing:.3px;
+  }
+  .roletable td{ padding:8px 10px; border-bottom:1px solid var(--line); }
+  .roletable input{ padding:6px 8px; font-size:13px; }
+
+  .addrow-btn{
+    margin-top:10px; font-size:12.5px; color:var(--teal); background:none; border:1px dashed var(--teal-light);
+    padding:7px 12px; border-radius:6px; font-weight:600;
+  }
+  .addrow-btn:hover{ background:var(--ice); }
+
+  /* footer nav */
+  .footer-nav{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:28px; padding-top:20px; border-top:1px solid var(--line);
+  }
+
+  /* ---------- Summary view ---------- */
+  .summary-header{
+    background:var(--navy); color:#fff; border-radius:10px;
+    padding:26px 28px; margin-bottom:20px; position:relative; overflow:hidden;
+  }
+  .summary-header::after{
+    content:""; position:absolute; left:0; right:0; bottom:0; height:5px; background:var(--gold);
+  }
+  .summary-header h2{ margin:0 0 6px; font-size:22px; }
+  .summary-header .meta{ color:#B9C8DE; font-size:13px; }
+  .sum-section{ margin-bottom:22px; }
+  .sum-section h3{
+    color:var(--navy); font-size:14.5px; text-transform:uppercase; letter-spacing:.4px;
+    border-bottom:2px solid var(--gold); padding-bottom:7px; margin-bottom:12px;
+  }
+  .sum-field{ margin-bottom:9px; font-size:13.5px; line-height:1.5; }
+  .sum-field .k{ font-weight:700; color:var(--navy); }
+  .sum-empty{ color:#A9B3C2; font-style:italic; }
+  .badge-status{
+    display:inline-block; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:9px; color:#fff;
+  }
+  .badge-status.verde{ background:var(--green);}
+  .badge-status.amarillo{ background:var(--amber);}
+  .badge-status.rojo{ background:var(--red);}
+
+  @media print{
+    .rail, .topbar .btns, .footer-nav, .no-print{ display:none !important; }
+    .app{ display:block; }
+    .main{ padding:0; max-width:100%; }
+    .card{ break-inside:avoid; border:1px solid #ccc; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ============ RAIL ============ -->
+  <nav class="rail no-print">
+    <div class="brand-eyebrow">Cátedra Abierta de IA Aplicada · UBP</div>
+    <div class="brand-title">Constructor de Proyecto de IA</div>
+    <div class="brand-sub">Estructurá tu primer proyecto de IA en 7 fases, con el método del Manual de Implementación de IA en Empresas.</div>
+
+    <div class="gauge-wrap">
+      <svg class="gauge" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="27" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="7"/>
+        <circle id="gaugeArc" cx="32" cy="32" r="27" fill="none" stroke="#E8B84B" stroke-width="7"
+          stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="169.6"
+          transform="rotate(-90 32 32)"/>
+      </svg>
+      <div>
+        <div class="gauge-label">Preparación</div>
+        <div class="gauge-value" id="gaugePct">0%</div>
+      </div>
+    </div>
+
+    <ul class="steps" id="stepsList"></ul>
+
+    <div class="rail-footer">
+      Basado en: MIT NANDA (2025), McKinsey State of AI (2025), Gartner AI-Ready Data, ISO/IEC 42001, Reglamento (UE) 2026/1744.<br><br>
+      Waldo Geremía · Universidad Blas Pascal
+    </div>
+  </nav>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main" id="main"></main>
+</div>
+
+<script>
+/* ============================================================
+   ESTADO
+============================================================ */
+const state = {
+  proyecto: { nombre: "", empresa: "", fecha: "" },
+  f1: { proceso:"", costo:"", objetivo:"", fecha:"", patrocinador:"", metrica:"", duenoMetrica:"", killcriteria:"", shadow:"" },
+  f2: { candidatos: [
+      { nombre:"", volumen:3, dolor:3, datos:3, tolerancia:3, dueno:3, reversibilidad:3 }
+    ] },
+  f3: { dims: {
+      cobertura:{status:"", nota:""},
+      frescura:{status:"", nota:""},
+      linaje:{status:"", nota:""},
+      permisos:{status:"", nota:""},
+      consistencia:{status:"", nota:""},
+      etiquetado:{status:"", nota:""},
+      contexto:{status:"", nota:""}
+    }, goldenSetCasos:"", goldenSetResp:"" },
+  f4: { propósito:"", noHace:"", responsable:"", datosEntrada:"", modelo:"", limites:"", planReversion:"" },
+  f5: { verde:"", amarillo:"", rojo:"", metaMetrica:"", metaError:"", metaCosto:"", semanas:"10" },
+  f6: { checks: {}, aiActEU:"no", notaRegulatoria:"" },
+  f7: { roles: [
+      { rol:"Dueño de producto de IA", persona:"" },
+      { rol:"Responsable de gobernanza", persona:"" },
+      { rol:"Revisor humano calificado", persona:"" },
+      { rol:"Referente de habilitación", persona:"" }
+    ], comunicacion:"" }
+};
+
+const F6_ITEMS = [
+  { id:"inventario", text:"Inventario de sistemas de IA en uso, incluidos los informales", sub:"Herramientas de consumo, IA embebida en CRM/ERP/RR.HH." },
+  { id:"clasificacion", text:"Clasificación de riesgo de cada sistema", sub:"Inaceptable / alto riesgo / riesgo limitado / riesgo mínimo" },
+  { id:"transparencia", text:"Transparencia hacia usuarios cuando corresponde", sub:"Aviso de interacción con IA y marcado de contenido sintético" },
+  { id:"datospersonales", text:"Revisión de tratamiento de datos personales", sub:"Ley 25.326 (Argentina) — consentimiento y decisiones automatizadas" },
+  { id:"politicauso", text:"Política de uso interna redactada y comunicada", sub:"Qué herramientas están aprobadas y qué información nunca sale de la empresa" },
+  { id:"marco42001", text:"Marco de gestión alineado a principios de ISO/IEC 42001", sub:"No implica certificar; sí documentar y ordenar responsabilidades" },
+];
+
+let currentStep = 0;
+const STEPS = [
+  { key:"f1", title:"Encuadre y diagnóstico", sub:"Fase 1" },
+  { key:"f2", title:"Selección del proceso", sub:"Fase 2" },
+  { key:"f3", title:"Salud de los datos", sub:"Fase 3" },
+  { key:"f4", title:"Documentación del proceso", sub:"Fase 4" },
+  { key:"f5", title:"Diseño de la solución y piloto", sub:"Fase 5" },
+  { key:"f6", title:"Gobernanza y cumplimiento", sub:"Fase 6" },
+  { key:"f7", title:"Personas y liderazgo", sub:"Fase 7" },
+  { key:"resumen", title:"Resumen del proyecto", sub:"Documento final" },
+];
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function el(html){ const d=document.createElement("div"); d.innerHTML=html.trim(); return d.firstChild; }
+function esc(s){ return (s||"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function nl2br(s){ return esc(s).replace(/\n/g,"<br>"); }
+
+/* ============================================================
+   RENDER RAIL
+============================================================ */
+function renderRail(){
+  const list = document.getElementById("stepsList");
+  list.innerHTML = "";
+  STEPS.forEach((s,i)=>{
+    const li = el(`
+      <li class="step ${i===currentStep?'active':''} ${completion(i)===100 && i<7 ?'done':''}" data-i="${i}">
+        <div class="step-num">${completion(i)===100 && i<7 ? '✓' : i+1}</div>
+        <div class="step-text">
+          <div class="step-title">${s.title}</div>
+          <div class="step-sub">${s.sub}</div>
+        </div>
+      </li>`);
+    li.addEventListener("click", ()=>{ currentStep=i; renderAll(); window.scrollTo({top:0,behavior:"smooth"}); });
+    list.appendChild(li);
+  });
+  updateGauge();
+}
+
+function completion(i){
+  const key = STEPS[i].key;
+  if(key==="f1"){
+    const f=state.f1; const filled=["proceso","costo","objetivo","metrica","patrocinador","killcriteria"].filter(k=>f[k].trim()).length;
+    return Math.round(filled/6*100);
+  }
+  if(key==="f2"){
+    const has = state.f2.candidatos.some(c=>c.nombre.trim());
+    return has?100:0;
+  }
+  if(key==="f3"){
+    const dims = Object.values(state.f3.dims);
+    const set = dims.filter(d=>d.status).length;
+    return Math.round(set/dims.length*100);
+  }
+  if(key==="f4"){
+    const f=state.f4; const filled=["propósito","responsable","datosEntrada","planReversion"].filter(k=>f[k].trim()).length;
+    return Math.round(filled/4*100);
+  }
+  if(key==="f5"){
+    const f=state.f5; const filled=["verde","amarillo","rojo","metaMetrica"].filter(k=>f[k].trim()).length;
+    return Math.round(filled/4*100);
+  }
+  if(key==="f6"){
+    const done = F6_ITEMS.filter(it=>state.f6.checks[it.id]).length;
+    return Math.round(done/F6_ITEMS.length*100);
+  }
+  if(key==="f7"){
+    const filled = state.f7.roles.filter(r=>r.persona.trim()).length;
+    return Math.round(filled/state.f7.roles.length*100);
+  }
+  return 0;
+}
+
+function overallCompletion(){
+  let sum=0;
+  for(let i=0;i<7;i++) sum += completion(i);
+  return Math.round(sum/7);
+}
+
+function updateGauge(){
+  const pct = overallCompletion();
+  const circumference = 169.6;
+  const arc = document.getElementById("gaugeArc");
+  arc.setAttribute("stroke-dashoffset", circumference - (circumference*pct/100));
+  document.getElementById("gaugePct").textContent = pct+"%";
+}
+
+/* ============================================================
+   RENDER MAIN — router
+============================================================ */
+function renderAll(){
+  renderRail();
+  const main = document.getElementById("main");
+  main.innerHTML = "";
+  const key = STEPS[currentStep].key;
+  const builders = { f1:renderF1, f2:renderF2, f3:renderF3, f4:renderF4, f5:renderF5, f6:renderF6, f7:renderF7, resumen:renderResumen };
+  builders[key](main);
+}
+
+function phaseHeader(main, eyebrow, title, desc){
+  main.appendChild(el(`
+    <div class="topbar">
+      <div>
+        <div class="phase-eyebrow">${eyebrow}</div>
+        <h1 class="phase-title">${title}</h1>
+        <div class="phase-desc">${desc}</div>
+      </div>
+      <div class="btns no-print">
+        ${currentStep===7 ? `
+          <button class="btn btn-ghost btn-sm" id="btnPrint">Imprimir / PDF</button>
+          <button class="btn btn-gold btn-sm" id="btnExport">Descargar resumen (.txt)</button>
+        `:""}
+      </div>
+    </div>
+  `));
+}
+
+function footerNav(main, {next=true, prev=true}={}){
+  const nav = el(`
+    <div class="footer-nav no-print">
+      <button class="btn btn-ghost" id="btnPrev" ${prev?"":"style='visibility:hidden'"}>&larr; Fase anterior</button>
+      <button class="btn ${currentStep===6?'btn-gold':'btn-primary'}" id="btnNext" ${next?"":"style='visibility:hidden'"}>
+        ${currentStep===6 ? "Ver resumen del proyecto →" : "Siguiente fase →"}
+      </button>
+    </div>
+  `);
+  main.appendChild(nav);
+  if(prev) nav.querySelector("#btnPrev").addEventListener("click", ()=>{ currentStep--; renderAll(); window.scrollTo({top:0,behavior:"smooth"}); });
+  if(next) nav.querySelector("#btnNext").addEventListener("click", ()=>{ currentStep++; renderAll(); window.scrollTo({top:0,behavior:"smooth"}); });
+}
+
+/* ============================================================
+   FASE 1
+============================================================ */
+function renderF1(main){
+  phaseHeader(main, "Fase 1 · 2 a 4 semanas", "Encuadre y diagnóstico",
+    "Todo proyecto arranca con una frase completable en una línea. Si no se puede completar con números que finanzas reconozca, no hay proyecto todavía: hay entusiasmo.");
+
+  const c1 = el(`
+    <div class="card">
+      <div class="card-title"><span class="n">1</span> La frase del proyecto</div>
+      <div class="card-help">Completá los campos. La métrica de éxito se define ahora, antes del primer piloto — no después.</div>
+      <div class="row2">
+        <div>
+          <label>Proceso a mejorar</label>
+          <input type="text" id="proceso" placeholder="Ej: gestión de reclamos por demora de envío" value="${esc(state.f1.proceso)}">
+        </div>
+        <div>
+          <label>Costo actual (horas, errores, plata, días de ciclo)</label>
+          <input type="text" id="costo" placeholder="Ej: 34 horas promedio de resolución" value="${esc(state.f1.costo)}">
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <label>Objetivo concreto</label>
+          <input type="text" id="objetivo" placeholder="Ej: bajar a 8 horas promedio" value="${esc(state.f1.objetivo)}">
+        </div>
+        <div>
+          <label>Fecha límite</label>
+          <input type="text" id="fechalim" placeholder="Ej: fin de Q4 2026" value="${esc(state.f1.fecha)}">
+        </div>
+      </div>
+      <div class="sentence-preview" id="sentencePreview"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="n">2</span> Métrica, patrocinio y criterio de baja</div>
+      <div class="row2">
+        <div>
+          <label>Métrica de éxito</label>
+          <input type="text" id="metrica" placeholder="Ej: tiempo medio de resolución de la categoría" value="${esc(state.f1.metrica)}">
+        </div>
+        <div>
+          <label>Dueño de esa métrica hoy</label>
+          <input type="text" id="duenoMetrica" placeholder="Ej: responsable de posventa" value="${esc(state.f1.duenoMetrica)}">
+        </div>
+      </div>
+      <label>Patrocinador (con presupuesto y autoridad)</label>
+      <input type="text" id="patrocinador" placeholder="Nombre y cargo" value="${esc(state.f1.patrocinador)}">
+      <label>Criterio de baja del proyecto</label>
+      <textarea id="killcriteria" placeholder="Ej: si a las 10 semanas no alcanzamos la métrica objetivo con el error máximo aceptado, paramos y documentamos por qué.">${esc(state.f1.killcriteria)}</textarea>
+      <div class="hint">Sin este criterio, el piloto se convierte en un proyecto zombi que nadie puede cerrar.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="n">3</span> Inventario de IA en uso (shadow AI)</div>
+      <div class="card-help">Casi todas las empresas descubren, cuando miran, que ya tienen IA adentro — formal o informal.</div>
+      <textarea id="shadow" placeholder="Ej: dos personas del equipo de posventa usan un asistente gratuito para redactar respuestas y pegan datos de clientes en él.">${esc(state.f1.shadow)}</textarea>
+    </div>
+  `);
+  main.appendChild(c1);
+  footerNav(main, {prev:false});
+
+  const bind = (id, key) => {
+    document.getElementById(id).addEventListener("input", e=>{ state.f1[key]=e.target.value; updateSentence(); updateGauge(); renderRailSoft(); });
+  };
+  bind("proceso","proceso"); bind("costo","costo"); bind("objetivo","objetivo"); bind("fechalim","fecha");
+  bind("metrica","metrica"); bind("duenoMetrica","duenoMetrica"); bind("patrocinador","patrocinador");
+  bind("killcriteria","killcriteria"); bind("shadow","shadow");
+  updateSentence();
+}
+
+function updateSentence(){
+  const f = state.f1;
+  const p = document.getElementById("sentencePreview");
+  if(!p) return;
+  const proceso = f.proceso || "<u>el proceso</u>";
+  const costo = f.costo || "<u>el costo actual</u>";
+  const objetivo = f.objetivo || "<u>el objetivo</u>";
+  const fecha = f.fecha || "<u>la fecha</u>";
+  p.innerHTML = `Hoy, el proceso <b>${esc(proceso)}</b> nos cuesta <b>${esc(costo)}</b> y queremos llevarlo a <b>${esc(objetivo)}</b> antes de <b>${esc(fecha)}</b>.`;
+}
+
+function renderRailSoft(){ renderRail(); }
+
+/* ============================================================
+   FASE 2
+============================================================ */
+const F2_CRITERIA = [
+  {key:"volumen", label:"Volumen", q:"¿Cuántas veces por mes ocurre?"},
+  {key:"dolor", label:"Dolor medible", q:"¿Cuánto cuesta hoy?"},
+  {key:"datos", label:"Datos disponibles", q:"¿Hay históricos con resultado conocido?"},
+  {key:"tolerancia", label:"Tolerancia al error", q:"¿Qué pasa si falla 1 de 20?"},
+  {key:"dueno", label:"Dueño identificable", q:"¿Hay una persona responsable?"},
+  {key:"reversibilidad", label:"Reversibilidad", q:"¿Se puede volver atrás en una semana?"},
+];
+
+function renderF2(main){
+  phaseHeader(main, "Fase 2 · 1 a 2 semanas", "Selección del proceso candidato",
+    "Puntuá cada proceso candidato de 1 a 5 en seis dimensiones. Los procesos con dueño identificable bajo se descartan sin más discusión: no hay a quién pedirle la métrica.");
+
+  const card = el(`<div class="card"><div class="card-title"><span class="n">1</span> Comparador de candidatos</div>
+    <div class="card-help">Hacé click en un puntaje para editarlo (1 a 5). El total se calcula solo.</div>
+    <div style="overflow-x:auto;">
+    <table class="scoretable">
+      <thead><tr>
+        <th style="min-width:170px;">Proceso candidato</th>
+        ${F2_CRITERIA.map(c=>`<th title="${c.q}">${c.label}</th>`).join("")}
+        <th>Total</th><th></th>
+      </tr></thead>
+      <tbody id="scoreBody"></tbody>
+    </table>
+    </div>
+    <button class="addrow-btn" id="addCandidato">+ Agregar proceso candidato</button>
+  </div>`);
+  main.appendChild(card);
+
+  const note = el(`<div class="card">
+    <div class="card-title"><span class="n">2</span> Cómo leer el resultado</div>
+    <div class="card-help" style="margin-bottom:0;">
+      El proceso con mayor puntaje es tu candidato natural para el primer proyecto — salvo que su puntaje de <b>dueño identificable</b> sea bajo, en cuyo caso descartalo aunque el total sea alto. Recordá el hallazgo del MIT: el presupuesto suele concentrarse en ventas y marketing, pero el retorno aparece más seguido en back office (administración, operaciones, atención posventa), donde el resultado correcto está definido y el error se detecta rápido.
+    </div>
+  </div>`);
+  main.appendChild(note);
+
+  footerNav(main);
+  renderScoreBody();
+
+  document.getElementById("addCandidato").addEventListener("click", ()=>{
+    state.f2.candidatos.push({nombre:"", volumen:3, dolor:3, datos:3, tolerancia:3, dueno:3, reversibilidad:3});
+    renderScoreBody();
+  });
+}
+
+function renderScoreBody(){
+  const body = document.getElementById("scoreBody");
+  if(!body) return;
+  const totals = state.f2.candidatos.map(c => F2_CRITERIA.reduce((s,cr)=>s+Number(c[cr.key]||0),0));
+  const maxTotal = Math.max(...totals);
+  body.innerHTML = "";
+  state.f2.candidatos.forEach((c,i)=>{
+    const tr = el(`<tr>
+      <td><input type="text" data-i="${i}" data-f="nombre" placeholder="Nombre del proceso" value="${esc(c.nombre)}"></td>
+      ${F2_CRITERIA.map(cr=>`<td><input type="number" min="1" max="5" data-i="${i}" data-f="${cr.key}" value="${c[cr.key]}"></td>`).join("")}
+      <td class="score-total">${totals[i]}${(totals[i]===maxTotal && c.nombre.trim()) ? '<span class="best-badge">TOP</span>':''}</td>
+      <td><button class="row-del" data-del="${i}" title="Quitar">✕</button></td>
+    </tr>`);
+    body.appendChild(tr);
+  });
+  body.querySelectorAll("input").forEach(inp=>{
+    inp.addEventListener("input", e=>{
+      const i = e.target.dataset.i, f = e.target.dataset.f;
+      state.f2.candidatos[i][f] = f==="nombre" ? e.target.value : Math.max(1,Math.min(5,Number(e.target.value)||1));
+      renderScoreBody();
+      updateGauge(); renderRailSoft();
+    });
+  });
+  body.querySelectorAll("[data-del]").forEach(btn=>{
+    btn.addEventListener("click", e=>{
+      const i = Number(e.target.dataset.del);
+      if(state.f2.candidatos.length>1){ state.f2.candidatos.splice(i,1); renderScoreBody(); updateGauge(); renderRailSoft(); }
+    });
+  });
+}
+
+/* ============================================================
+   FASE 3
+============================================================ */
+const F3_DIMS = [
+  {key:"cobertura", label:"Cobertura", sub:"¿Representa los casos raros, no solo los frecuentes?"},
+  {key:"frescura", label:"Frescura", sub:"¿La latencia del dato es compatible con la decisión?"},
+  {key:"linaje", label:"Linaje", sub:"¿Se sabe de dónde viene cada campo?"},
+  {key:"permisos", label:"Permisos", sub:"¿El sistema hereda las restricciones de acceso?"},
+  {key:"consistencia", label:"Consistencia semántica", sub:"¿\"Cliente activo\" significa lo mismo en todas las áreas?"},
+  {key:"etiquetado", label:"Etiquetado / verdad de campo", sub:"¿Hay casos con la respuesta correcta validada?"},
+  {key:"contexto", label:"Contexto no estructurado", sub:"¿Manuales y políticas accesibles y vigentes?"},
+];
+
+function renderF3(main){
+  phaseHeader(main, "Fase 3 · 4 a 12 semanas", "Salud de los datos",
+    "\u201cDatos preparados para IA\u201d no es lo mismo que \u201cdatos limpios\u201d. Es relativo al caso de uso. Marcá el estado de cada dimensión para tu proceso elegido.");
+
+  const rows = F3_DIMS.map(d=>{
+    const cur = state.f3.dims[d.key];
+    return `
+    <div class="dim-row">
+      <div class="dim-name">${d.label}<span class="sub">${d.sub}</span></div>
+      <div>
+        <textarea data-dim="${d.key}" placeholder="Notas — evidencia, dueño del dato, qué falta">${esc(cur.nota)}</textarea>
+      </div>
+      <div class="status-select" data-dimstatus="${d.key}">
+        <div class="pill ${cur.status==='verde'?'active':''}" data-v="verde">Listo</div>
+        <div class="pill ${cur.status==='amarillo'?'active':''}" data-v="amarillo">Parcial</div>
+        <div class="pill ${cur.status==='rojo'?'active':''}" data-v="rojo">Falta</div>
+      </div>
+    </div>`;
+  }).join("");
+
+  const card = el(`<div class="card">
+    <div class="card-title"><span class="n">1</span> Las siete dimensiones</div>
+    ${rows}
+  </div>`);
+  main.appendChild(card);
+
+  const golden = el(`<div class="card">
+    <div class="card-title"><span class="n">2</span> Conjunto dorado (golden set)</div>
+    <div class="card-help">El activo más barato de construir y el más caro de no tener: 150 a 300 casos reales con la respuesta correcta validada por dos personas expertas.</div>
+    <div class="row2">
+      <div>
+        <label>¿Cuántos casos históricos con resultado conocido tenemos hoy?</label>
+        <input type="text" id="goldenCasos" placeholder="Ej: ~600 reclamos cerrados el último año" value="${esc(state.f3.goldenSetCasos)}">
+      </div>
+      <div>
+        <label>¿Quién va a validar la respuesta correcta de cada caso?</label>
+        <input type="text" id="goldenResp" placeholder="Nombre de las dos personas expertas" value="${esc(state.f3.goldenSetResp)}">
+      </div>
+    </div>
+  </div>`);
+  main.appendChild(golden);
+
+  footerNav(main);
+
+  card.querySelectorAll("textarea").forEach(t=>{
+    t.addEventListener("input", e=>{ state.f3.dims[e.target.dataset.dim].nota = e.target.value; });
+  });
+  card.querySelectorAll(".status-select").forEach(box=>{
+    box.querySelectorAll(".pill").forEach(p=>{
+      p.addEventListener("click", ()=>{
+        const dim = box.dataset.dimstatus;
+        state.f3.dims[dim].status = p.dataset.v;
+        renderAll();
+      });
+    });
+  });
+  document.getElementById("goldenCasos").addEventListener("input", e=>{ state.f3.goldenSetCasos = e.target.value; });
+  document.getElementById("goldenResp").addEventListener("input", e=>{ state.f3.goldenSetResp = e.target.value; });
+}
+
+/* ============================================================
+   FASE 4
+============================================================ */
+function renderF4(main){
+  phaseHeader(main, "Fase 4", "Documentación del proceso",
+    "El activo invisible: la ficha del sistema es el equivalente al legajo técnico de una máquina, y en varios marcos regulatorios ya es una obligación.");
+
+  const card = el(`<div class="card">
+    <div class="card-title"><span class="n">1</span> Ficha mínima del sistema de IA</div>
+    <label>Propósito — qué decide o produce</label>
+    <textarea id="proposito" placeholder="Qué resuelve el sistema, en una o dos frases">${esc(state.f4.propósito)}</textarea>
+    <label>Qué NO hace (límite explícito)</label>
+    <textarea id="noHace" placeholder="Ej: no decide reintegros mayores a $50.000, no interactúa con clientes corporativos">${esc(state.f4.noHace)}</textarea>
+    <div class="row2">
+      <div>
+        <label>Responsable de negocio / técnico</label>
+        <input type="text" id="responsable" placeholder="Nombre y rol" value="${esc(state.f4.responsable)}">
+      </div>
+      <div>
+        <label>Modelo o proveedor</label>
+        <input type="text" id="modelo" placeholder="Cuál, versión, dónde se procesa" value="${esc(state.f4.modelo)}">
+      </div>
+    </div>
+    <label>Datos de entrada</label>
+    <textarea id="datosEntrada" placeholder="Fuentes, frecuencia, permisos, datos personales involucrados">${esc(state.f4.datosEntrada)}</textarea>
+    <label>Límites conocidos</label>
+    <textarea id="limites" placeholder="Casos donde falla, sesgos detectados, idiomas o formatos no soportados">${esc(state.f4.limites)}</textarea>
+    <label>Plan de reversión</label>
+    <textarea id="planReversion" placeholder="Cómo se apaga y cuánto tarda volver al proceso anterior">${esc(state.f4.planReversion)}</textarea>
+    <div class="hint">Este último punto se omite con frecuencia — y es el que la dirección va a pedir el día que algo salga mal.</div>
+  </div>`);
+  main.appendChild(card);
+  footerNav(main);
+
+  const bind = (id,key) => document.getElementById(id).addEventListener("input", e=>{ state.f4[key]=e.target.value; updateGauge(); renderRailSoft(); });
+  bind("proposito","propósito"); bind("noHace","noHace"); bind("responsable","responsable");
+  bind("modelo","modelo"); bind("datosEntrada","datosEntrada"); bind("limites","limites"); bind("planReversion","planReversion");
+}
+
+/* ============================================================
+   FASE 5
+============================================================ */
+function renderF5(main){
+  phaseHeader(main, "Fase 5 · 8 a 12 semanas", "Diseño de la solución y piloto",
+    "Tres franjas de autonomía, definidas con números antes de escribir una línea de código. Después, los criterios de continuidad del piloto.");
+
+  const card = el(`<div class="card">
+    <div class="card-title"><span class="n">1</span> Arquitectura de decisión</div>
+    <div class="lane green">
+      <div class="lane-title"><span class="dot green"></span> Franja verde — el sistema resuelve solo</div>
+      <textarea id="verde" placeholder="Ej: reclamo con envío rastreable y menos de 72 horas de atraso">${esc(state.f5.verde)}</textarea>
+    </div>
+    <div class="lane amber">
+      <div class="lane-title"><span class="dot amber"></span> Franja amarilla — propone y un humano aprueba</div>
+      <textarea id="amarillo" placeholder="Ej: atraso mayor a 72 horas, o cliente con reclamos previos">${esc(state.f5.amarillo)}</textarea>
+    </div>
+    <div class="lane red">
+      <div class="lane-title"><span class="dot red"></span> Franja roja — no interviene, deriva con contexto</div>
+      <textarea id="rojo" placeholder="Ej: pedido perdido, cliente corporativo, mención de acciones legales">${esc(state.f5.rojo)}</textarea>
+    </div>
+  </div>`);
+  main.appendChild(card);
+
+  const card2 = el(`<div class="card">
+    <div class="card-title"><span class="n">2</span> Criterios de continuidad del piloto</div>
+    <div class="card-help">Se escriben antes de arrancar y los firma el patrocinador.</div>
+    <div class="row3">
+      <div><label>Métrica objetivo</label><input type="text" id="metaMetrica" placeholder="Ej: ≥ 60% resuelto en franja verde" value="${esc(state.f5.metaMetrica)}"></div>
+      <div><label>Tasa de error máxima</label><input type="text" id="metaError" placeholder="Ej: ≤ 5%" value="${esc(state.f5.metaError)}"></div>
+      <div><label>Costo por caso máximo</label><input type="text" id="metaCosto" placeholder="Ej: ≤ costo actual" value="${esc(state.f5.metaCosto)}"></div>
+    </div>
+    <label>Semanas de piloto</label>
+    <input type="text" id="semanas" style="max-width:120px;" value="${esc(state.f5.semanas)}">
+    <div class="sentence-preview" id="pilotPreview"></div>
+  </div>`);
+  main.appendChild(card2);
+
+  footerNav(main);
+
+  const bind = (id,key) => document.getElementById(id).addEventListener("input", e=>{ state.f5[key]=e.target.value; updatePilotPreview(); updateGauge(); renderRailSoft(); });
+  ["verde","amarillo","rojo","metaMetrica","metaError","metaCosto","semanas"].forEach(k=>bind(k,k));
+  updatePilotPreview();
+}
+
+function updatePilotPreview(){
+  const f = state.f5;
+  const p = document.getElementById("pilotPreview");
+  if(!p) return;
+  p.innerHTML = `Continuamos si a las <b>${esc(f.semanas||"10")} semanas</b> alcanzamos <b>${esc(f.metaMetrica||"[métrica objetivo]")}</b> con una tasa de error <b>${esc(f.metaError||"[máxima aceptada]")}</b> y un costo por caso <b>${esc(f.metaCosto||"[tope]")}</b>. Si no, paramos y documentamos por qué.`;
+}
+
+/* ============================================================
+   FASE 6
+============================================================ */
+function renderF6(main){
+  phaseHeader(main, "Fase 6", "Gobernanza, riesgo y cumplimiento",
+    "Un marco simple es mejor que ningún marco. No hace falta certificar ISO/IEC 42001 para aplicar su lógica de responsabilidades y documentación.");
+
+  const items = F6_ITEMS.map(it=>`
+    <div class="check-item">
+      <input type="checkbox" id="chk_${it.id}" ${state.f6.checks[it.id]?"checked":""}>
+      <label for="chk_${it.id}" class="ci-text" style="margin:0;font-weight:400;cursor:pointer;">
+        ${it.text}<small>${it.sub}</small>
+      </label>
+    </div>`).join("");
+
+  const card = el(`<div class="card">
+    <div class="card-title"><span class="n">1</span> Checklist de gobernanza</div>
+    ${items}
+  </div>`);
+  main.appendChild(card);
+
+  const card2 = el(`<div class="card">
+    <div class="card-title"><span class="n">2</span> Alcance regulatorio</div>
+    <label>¿La empresa vende a la Unión Europea o trata datos de residentes europeos?</label>
+    <select id="aiActEU">
+      <option value="no" ${state.f6.aiActEU==="no"?"selected":""}>No</option>
+      <option value="si" ${state.f6.aiActEU==="si"?"selected":""}>Sí</option>
+      <option value="noseguro" ${state.f6.aiActEU==="noseguro"?"selected":""}>No estoy seguro</option>
+    </select>
+    <div class="hint" id="euHint" style="margin-top:10px;"></div>
+    <label>Notas sobre cumplimiento (Ley 25.326, contratos, cláusulas de clientes)</label>
+    <textarea id="notaRegulatoria" placeholder="Ej: un cliente europeo empezó a pedirnos evidencia de gobernanza de IA en el contrato anual">${esc(state.f6.notaRegulatoria)}</textarea>
+  </div>`);
+  main.appendChild(card2);
+
+  footerNav(main);
+
+  F6_ITEMS.forEach(it=>{
+    document.getElementById("chk_"+it.id).addEventListener("change", e=>{
+      state.f6.checks[it.id] = e.target.checked; updateGauge(); renderRailSoft();
+    });
+  });
+  document.getElementById("aiActEU").addEventListener("change", e=>{ state.f6.aiActEU=e.target.value; updateEuHint(); });
+  document.getElementById("notaRegulatoria").addEventListener("input", e=>{ state.f6.notaRegulatoria=e.target.value; });
+  updateEuHint();
+}
+
+function updateEuHint(){
+  const hint = document.getElementById("euHint");
+  if(!hint) return;
+  const v = state.f6.aiActEU;
+  if(v==="si"){
+    hint.innerHTML = "Desde el 2 de agosto de 2026 aplican las obligaciones de transparencia del artículo 50 del Reglamento (UE) 2024/1689: avisar cuando se interactúa con un sistema de IA y marcar el contenido sintético. Las obligaciones de alto riesgo del Anexo III se aplazaron al 2 de diciembre de 2027 (Reglamento Ómnibus UE 2026/1744), pero conviene clasificar el sistema igual, sin esperar al plazo.";
+  } else if(v==="noseguro"){
+    hint.innerHTML = "Vale la pena confirmarlo: si hay clientes, proveedores o datos europeos en la cadena, el Reglamento europeo puede alcanzar a la empresa aunque esté domiciliada en Argentina.";
+  } else {
+    hint.innerHTML = "En Argentina rige hoy la Ley 25.326 de Protección de Datos Personales. Establece que las decisiones que afectan a personas no pueden basarse exclusivamente en tratamiento automatizado, aunque todavía no define en detalle cómo regularlo — hay varios proyectos de reforma en el Congreso.";
+  }
+}
+
+/* ============================================================
+   FASE 7
+============================================================ */
+function renderF7(main){
+  phaseHeader(main, "Fase 7", "Personas, liderazgo y escalado",
+    "El patrón de los equipos de alto desempeño: buena parte del presupuesto va a formación, rediseño de flujos y gestión del cambio, no solo a tecnología.");
+
+  const card = el(`<div class="card">
+    <div class="card-title"><span class="n">1</span> Roles mínimos</div>
+    <div class="card-help">No hace falta crear un puesto nuevo para cada uno — puede ser una función a tiempo parcial, pero con nombre y apellido.</div>
+    <table class="roletable">
+      <thead><tr><th style="width:55%;">Rol</th><th>Persona asignada</th><th></th></tr></thead>
+      <tbody id="rolesBody"></tbody>
+    </table>
+    <button class="addrow-btn" id="addRol">+ Agregar rol</button>
+  </div>`);
+  main.appendChild(card);
+
+  const card2 = el(`<div class="card">
+    <div class="card-title"><span class="n">2</span> Comunicación al equipo</div>
+    <div class="card-help">El 37% de los empleados teme perder su empleo por la IA, según releva el Observatorio de Recursos Humanos. Decir qué pasa con el tiempo liberado, en la primera semana y no en la última, es lo que evita el boicot pasivo.</div>
+    <label>¿Qué se le va a comunicar al equipo, y cuándo?</label>
+    <textarea id="comunicacion" placeholder="Ej: reunión en la semana 1, foco en que nadie se va y el tiempo liberado se destina a recuperación de clientes en riesgo">${esc(state.f7.comunicacion)}</textarea>
+  </div>`);
+  main.appendChild(card2);
+
+  footerNav(main);
+  renderRolesBody();
+  document.getElementById("addRol").addEventListener("click", ()=>{
+    state.f7.roles.push({rol:"", persona:""});
+    renderRolesBody();
+  });
+  document.getElementById("comunicacion").addEventListener("input", e=>{ state.f7.comunicacion=e.target.value; });
+}
+
+function renderRolesBody(){
+  const body = document.getElementById("rolesBody");
+  if(!body) return;
+  body.innerHTML = "";
+  state.f7.roles.forEach((r,i)=>{
+    const tr = el(`<tr>
+      <td><input type="text" data-i="${i}" data-f="rol" placeholder="Nombre del rol" value="${esc(r.rol)}"></td>
+      <td><input type="text" data-i="${i}" data-f="persona" placeholder="Quién lo cubre" value="${esc(r.persona)}"></td>
+      <td><button class="row-del" data-del="${i}">✕</button></td>
+    </tr>`);
+    body.appendChild(tr);
+  });
+  body.querySelectorAll("input").forEach(inp=>{
+    inp.addEventListener("input", e=>{
+      const i=e.target.dataset.i, f=e.target.dataset.f;
+      state.f7.roles[i][f]=e.target.value;
+      updateGauge(); renderRailSoft();
+    });
+  });
+  body.querySelectorAll("[data-del]").forEach(btn=>{
+    btn.addEventListener("click", e=>{
+      const i=Number(e.target.dataset.del);
+      if(state.f7.roles.length>1){ state.f7.roles.splice(i,1); renderRolesBody(); updateGauge(); renderRailSoft(); }
+    });
+  });
+}
+
+/* ============================================================
+   RESUMEN
+============================================================ */
+function statusLabel(v){ return v==="verde"?"Listo":v==="amarillo"?"Parcial":v==="rojo"?"Falta":""; }
+
+function buildSummaryText(){
+  const f1=state.f1, f5=state.f5;
+  const bestCand = state.f2.candidatos.reduce((a,b)=>{
+    const ta=F2_CRITERIA.reduce((s,c)=>s+Number(a[c.key]||0),0);
+    const tb=F2_CRITERIA.reduce((s,c)=>s+Number(b[c.key]||0),0);
+    return tb>ta?b:a;
+  }, state.f2.candidatos[0]||{nombre:""});
+
+  let t = "";
+  t += "PROYECTO DE IMPLEMENTACIÓN DE IA — RESUMEN EJECUTIVO\n";
+  t += "Cátedra Abierta de IA Aplicada · UBP\n";
+  t += "========================================================\n\n";
+
+  t += "FASE 1 — ENCUADRE\n";
+  t += `Proceso: ${f1.proceso||"—"}\n`;
+  t += `Costo actual: ${f1.costo||"—"}\n`;
+  t += `Objetivo: ${f1.objetivo||"—"}\n`;
+  t += `Fecha límite: ${f1.fecha||"—"}\n`;
+  t += `Métrica de éxito: ${f1.metrica||"—"} (dueño: ${f1.duenoMetrica||"—"})\n`;
+  t += `Patrocinador: ${f1.patrocinador||"—"}\n`;
+  t += `Criterio de baja: ${f1.killcriteria||"—"}\n\n`;
+
+  t += "FASE 2 — PROCESO ELEGIDO\n";
+  t += `Candidato con mayor puntaje: ${bestCand.nombre||"—"}\n\n`;
+
+  t += "FASE 3 — SALUD DE LOS DATOS\n";
+  F3_DIMS.forEach(d=>{
+    const c = state.f3.dims[d.key];
+    t += `- ${d.label}: ${statusLabel(c.status)||"sin evaluar"}${c.nota?` — ${c.nota}`:""}\n`;
+  });
+  t += `Conjunto dorado — casos disponibles: ${state.f3.goldenSetCasos||"—"}\n`;
+  t += `Conjunto dorado — validadores: ${state.f3.goldenSetResp||"—"}\n\n`;
+
+  t += "FASE 4 — FICHA DEL SISTEMA\n";
+  t += `Propósito: ${state.f4.propósito||"—"}\n`;
+  t += `No hace: ${state.f4.noHace||"—"}\n`;
+  t += `Responsable: ${state.f4.responsable||"—"}\n`;
+  t += `Modelo/proveedor: ${state.f4.modelo||"—"}\n`;
+  t += `Plan de reversión: ${state.f4.planReversion||"—"}\n\n`;
+
+  t += "FASE 5 — DISEÑO Y PILOTO\n";
+  t += `Franja verde: ${f5.verde||"—"}\n`;
+  t += `Franja amarilla: ${f5.amarillo||"—"}\n`;
+  t += `Franja roja: ${f5.rojo||"—"}\n`;
+  t += `Criterio de continuidad: a las ${f5.semanas||"10"} semanas, ${f5.metaMetrica||"[métrica]"}, error ${f5.metaError||"[máx]"}, costo ${f5.metaCosto||"[tope]"}\n\n`;
+
+  t += "FASE 6 — GOBERNANZA\n";
+  F6_ITEMS.forEach(it=>{ t += `[${state.f6.checks[it.id]?"x":" "}] ${it.text}\n`; });
+  t += `Alcance UE: ${state.f6.aiActEU}\n`;
+  t += `Notas regulatorias: ${state.f6.notaRegulatoria||"—"}\n\n`;
+
+  t += "FASE 7 — PERSONAS\n";
+  state.f7.roles.forEach(r=>{ t += `- ${r.rol||"(rol)"}: ${r.persona||"sin asignar"}\n`; });
+  t += `Comunicación al equipo: ${state.f7.comunicacion||"—"}\n`;
+
+  return t;
+}
+
+function renderResumen(main){
+  phaseHeader(main, "Documento final", "Resumen del proyecto",
+    "Todo lo que completaste, en un solo documento. Imprimilo, exportalo o llevalo directo al comité.");
+
+  const bestCand = state.f2.candidatos.reduce((a,b)=>{
+    const ta=F2_CRITERIA.reduce((s,c)=>s+Number(a[c.key]||0),0);
+    const tb=F2_CRITERIA.reduce((s,c)=>s+Number(b[c.key]||0),0);
+    return tb>ta?b:a;
+  }, state.f2.candidatos[0]||{nombre:""});
+
+  const overall = overallCompletion();
+
+  main.appendChild(el(`
+    <div class="summary-header">
+      <h2>${esc(state.f1.proceso) || "Proyecto de implementación de IA"}</h2>
+      <div class="meta">Preparación general del proyecto: <b style="color:#E8B84B;">${overall}%</b> completado sobre las 7 fases del método</div>
+    </div>
+  `));
+
+  const sec = (title, html) => `<div class="sum-section"><h3>${title}</h3>${html}</div>`;
+  const field = (k,v) => `<div class="sum-field"><span class="k">${k}:</span> ${v ? esc(v) : '<span class="sum-empty">sin completar</span>'}</div>`;
+
+  let html = "";
+
+  html += sec("Fase 1 — Encuadre", `
+    ${field("Proceso", state.f1.proceso)}
+    ${field("Costo actual", state.f1.costo)}
+    ${field("Objetivo", state.f1.objetivo)}
+    ${field("Fecha límite", state.f1.fecha)}
+    ${field("Métrica de éxito", state.f1.metrica)}
+    ${field("Dueño de la métrica", state.f1.duenoMetrica)}
+    ${field("Patrocinador", state.f1.patrocinador)}
+    ${field("Criterio de baja", state.f1.killcriteria)}
+    ${field("Shadow AI detectado", state.f1.shadow)}
+  `);
+
+  html += sec("Fase 2 — Proceso elegido", `
+    ${field("Candidato con mayor puntaje", bestCand.nombre)}
+    <div class="sum-field" style="margin-top:8px;">
+      ${state.f2.candidatos.map(c=>{
+        const total = F2_CRITERIA.reduce((s,cr)=>s+Number(c[cr.key]||0),0);
+        return c.nombre? `<div style="margin-bottom:4px;">• ${esc(c.nombre)} — puntaje total: <b>${total}/30</b></div>`:"";
+      }).join("") || '<span class="sum-empty">sin candidatos cargados</span>'}
+    </div>
+  `);
+
+  html += sec("Fase 3 — Salud de los datos", `
+    ${F3_DIMS.map(d=>{
+      const c = state.f3.dims[d.key];
+      return `<div class="sum-field">${d.label}: ${c.status?`<span class="badge-status ${c.status}">${statusLabel(c.status)}</span>`:'<span class="sum-empty">sin evaluar</span>'} ${c.nota?` — ${esc(c.nota)}`:""}</div>`;
+    }).join("")}
+    ${field("Conjunto dorado — casos", state.f3.goldenSetCasos)}
+    ${field("Conjunto dorado — validadores", state.f3.goldenSetResp)}
+  `);
+
+  html += sec("Fase 4 — Documentación del proceso", `
+    ${field("Propósito", state.f4.propósito)}
+    ${field("Qué NO hace", state.f4.noHace)}
+    ${field("Responsable", state.f4.responsable)}
+    ${field("Modelo / proveedor", state.f4.modelo)}
+    ${field("Datos de entrada", state.f4.datosEntrada)}
+    ${field("Límites conocidos", state.f4.limites)}
+    ${field("Plan de reversión", state.f4.planReversion)}
+  `);
+
+  html += sec("Fase 5 — Diseño y piloto", `
+    ${field("Franja verde (autónoma)", state.f5.verde)}
+    ${field("Franja amarilla (con aprobación)", state.f5.amarillo)}
+    ${field("Franja roja (deriva)", state.f5.rojo)}
+    ${field("Duración del piloto", (state.f5.semanas||"10")+" semanas")}
+    ${field("Métrica objetivo", state.f5.metaMetrica)}
+    ${field("Error máximo aceptado", state.f5.metaError)}
+    ${field("Costo por caso máximo", state.f5.metaCosto)}
+  `);
+
+  html += sec("Fase 6 — Gobernanza y cumplimiento", `
+    ${F6_ITEMS.map(it=>`<div class="sum-field">${state.f6.checks[it.id]?"☑":"☐"} ${esc(it.text)}</div>`).join("")}
+    ${field("Alcance UE / EU AI Act", state.f6.aiActEU==="si"?"Sí aplica":state.f6.aiActEU==="noseguro"?"A confirmar":"No aplica por ahora")}
+    ${field("Notas regulatorias", state.f6.notaRegulatoria)}
+  `);
+
+  html += sec("Fase 7 — Personas y liderazgo", `
+    ${state.f7.roles.map(r=>field(r.rol||"Rol sin nombre", r.persona)).join("")}
+    ${field("Comunicación al equipo", state.f7.comunicacion)}
+  `);
+
+  main.appendChild(el(`<div class="card" style="padding-top:24px;">${html}</div>`));
+
+  const nav = el(`<div class="footer-nav no-print">
+    <button class="btn btn-ghost" id="btnPrev">&larr; Volver a Fase 7</button>
+    <button class="btn btn-primary" id="btnRestart">Empezar un proyecto nuevo</button>
+  </div>`);
+  main.appendChild(nav);
+  nav.querySelector("#btnPrev").addEventListener("click", ()=>{ currentStep=6; renderAll(); window.scrollTo({top:0,behavior:"smooth"}); });
+  nav.querySelector("#btnRestart").addEventListener("click", ()=>{
+    if(confirm("Esto borra todo lo cargado en este proyecto. ¿Continuar?")){
+      location.reload();
+    }
+  });
+
+  setTimeout(()=>{
+    const bp = document.getElementById("btnPrint");
+    const be = document.getElementById("btnExport");
+    if(bp) bp.addEventListener("click", ()=>window.print());
+    if(be) be.addEventListener("click", ()=>{
+      const blob = new Blob([buildSummaryText()], {type:"text/plain;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "resumen-proyecto-ia" + (state.f1.proceso ? "-"+state.f1.proceso.toLowerCase().replace(/[^a-z0-9]+/g,"-").slice(0,40) : "") + ".txt";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }, 0);
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+renderAll();
+</script>
+</body>
+</html>
